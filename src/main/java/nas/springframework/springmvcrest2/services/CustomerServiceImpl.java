@@ -4,6 +4,7 @@ package nas.springframework.springmvcrest2.services;
 import nas.springframework.springmvcrest2.api.v1.mapper.CustomerMapper;
 import nas.springframework.springmvcrest2.api.v1.model.CustomerDTO;
 import nas.springframework.springmvcrest2.controllers.v1.CustomerController;
+import nas.springframework.springmvcrest2.domain.Customer;
 import nas.springframework.springmvcrest2.repositories.CustomerRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +27,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     public List<CustomerDTO> getAllCustomers() {
 
-        return customerRepository.
-                findAll()
+        return customerRepository
+                .findAll()
                 .stream()
                 .map(customer -> {
                     CustomerDTO customerDTO =
@@ -45,6 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(Long id) {
 
         return customerRepository.findById(id)
-                        .map(customerMapper::customerToCustomerDTO).orElseThrow(RuntimeException::new);
+                .map(customerMapper::customerToCustomerDTO).orElseThrow(RuntimeException::new);
     }
+
 }
