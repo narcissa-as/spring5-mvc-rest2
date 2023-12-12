@@ -1,5 +1,6 @@
 package nas.springframework.springmvcrest2.controllers.v1;
 
+import com.jayway.jsonpath.JsonPath;
 import nas.springframework.springmvcrest2.api.v1.model.CustomerDTO;
 import nas.springframework.springmvcrest2.services.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +12,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 
@@ -21,11 +25,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-class CustomerControllerTest {
+class CustomerControllerTest extends AbstractRestController {
 
     @Mock
     CustomerService customerService;
@@ -85,5 +90,34 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.firstName", equalTo("Joe")));
     }
 
+    @Test
+    void creatNewCustomer() throws Exception {
 
+        //given
+        CustomerDTO customer = new CustomerDTO();
+        customer.setId(1l);
+        customer.setFirstName("Joe");
+        customer.setLastName("William");
+        customer.setUrl(CustomerController.BASE_URL + "/" + customer.getId());
+
+        CustomerDTO returnedDTO = new CustomerDTO();
+        returnedDTO.setId(customer.getId());
+        returnedDTO.setFirstName(customer.getFirstName());
+        returnedDTO.setLastName(customer.getLastName());
+
+        //when
+        when(customerService.createNewCustomer(any(CustomerDTO.class))).thenReturn(customer);
+        //then
+        mockMvc.perform(post(CustomerController.BASE_URL)
+                        .content(asJsonString(customer))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isCreated())
+               // .andExpect(jsonPath("$.url",equalTo("/api/v1/customers/1")))
+                //related to  @JsonProperty("customer_url") in domain declaration ,to see the result, here we use
+                // the JsonProperty's name
+                .andExpect(jsonPath("$.customer_url",equalTo("/api/v1/customers/1")))
+                .andExpect(jsonPath("$.firstName",equalTo("Joe")));
+
+    }
 }
