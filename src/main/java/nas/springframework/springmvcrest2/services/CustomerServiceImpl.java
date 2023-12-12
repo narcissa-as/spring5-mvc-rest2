@@ -7,6 +7,7 @@ import nas.springframework.springmvcrest2.controllers.v1.CustomerController;
 import nas.springframework.springmvcrest2.domain.Customer;
 import nas.springframework.springmvcrest2.repositories.CustomerRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,4 +60,11 @@ public class CustomerServiceImpl implements CustomerService {
         return returnDTO;
 
     }
+
+    @Override
+    public void deleteCustomerById(Long id) {
+        customerRepository.deleteById(id);
+    }
+
+
 }

@@ -18,7 +18,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CustomerServiceImplTest {
 
@@ -84,14 +84,14 @@ class CustomerServiceImplTest {
 
     @Test
     void createNewCustomer() throws Exception {
-      
+
         //given
         Customer savedCustomer = new Customer();
         savedCustomer.setId(1l);
         savedCustomer.setFirstName("Joe");
         savedCustomer.setLastName("Watson");
 
-        CustomerDTO customerDTO=new CustomerDTO();
+        CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setId(savedCustomer.getId());
         customerDTO.setFirstName(savedCustomer.getFirstName());
         customerDTO.setLastName(savedCustomer.getLastName());
@@ -105,5 +105,14 @@ class CustomerServiceImplTest {
         //then
         assertNotNull(customerDTO);
         assertEquals(customerDTO.getFirstName(), "Joe");
+    }
+
+    @Test
+    void deleteCustomerById() {
+        Long id = 1l;
+
+        customerService.deleteCustomerById(id);
+        verify(customerRepository, times(1)).deleteById(anyLong());
+
     }
 }

@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -24,8 +23,8 @@ import java.util.Arrays;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -113,11 +112,22 @@ class CustomerControllerTest extends AbstractRestController {
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isCreated())
-               // .andExpect(jsonPath("$.url",equalTo("/api/v1/customers/1")))
+                // .andExpect(jsonPath("$.url",equalTo("/api/v1/customers/1")))
                 //related to  @JsonProperty("customer_url") in domain declaration ,to see the result, here we use
                 // the JsonProperty's name
-                .andExpect(jsonPath("$.customer_url",equalTo("/api/v1/customers/1")))
-                .andExpect(jsonPath("$.firstName",equalTo("Joe")));
+                .andExpect(jsonPath("$.customer_url", equalTo("/api/v1/customers/1")))
+                .andExpect(jsonPath("$.firstName", equalTo("Joe")));
+
+    }
+
+    @Test
+    void deleteCustomerById() throws Exception{
+
+        mockMvc.perform(delete(CustomerController.BASE_URL + "/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andExpect(status().isOk());
+
+                verify(customerService, times(1)).deleteCustomerById(anyLong());
 
     }
 }
