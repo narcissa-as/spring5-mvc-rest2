@@ -121,13 +121,40 @@ class CustomerControllerTest extends AbstractRestController {
     }
 
     @Test
-    void deleteCustomerById() throws Exception{
+    void updateCustomer() throws Exception{
+        //given
+
+        CustomerDTO customer =new CustomerDTO();
+        customer.setId(1l);
+        customer.setFirstName("Joe");
+        customer.setLastName("Weston");
+
+        CustomerDTO returnDTO = new CustomerDTO();
+        returnDTO.setFirstName(customer.getFirstName());
+        returnDTO.setLastName(customer.getLastName());
+        returnDTO.setUrl("api/v1/customer/1");
+
+
+        //when
+        when(customerService.saveCustomerByDTO(anyLong(), any(CustomerDTO.class))).thenReturn(returnDTO);
+        //then
+        mockMvc.perform(put(CustomerController.BASE_URL+ "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(customer)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName",equalTo("Joe")))
+                .andExpect(jsonPath("$.customer_url",equalTo("api/v1/customer/1")));
+
+    }
+
+    @Test
+    void deleteCustomerById() throws Exception {
 
         mockMvc.perform(delete(CustomerController.BASE_URL + "/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                ).andExpect(status().isOk());
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
 
-                verify(customerService, times(1)).deleteCustomerById(anyLong());
+        verify(customerService, times(1)).deleteCustomerById(anyLong());
 
     }
 }
