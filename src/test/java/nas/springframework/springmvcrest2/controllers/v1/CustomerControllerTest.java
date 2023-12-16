@@ -59,7 +59,9 @@ class CustomerControllerTest extends AbstractRestController {
         customerDTO2.setId(2l);
         customerDTO2.setFirstName("John");
         customerDTO2.setLastName("Axe");
-        customerDTO2.setUrl("api/v1/customer/2");
+        //better way to write hardcode way
+        //customerDTO2.setUrl("api/v1/customer/2");
+        customerDTO2.setUrl(CustomerController.BASE_URL+ "/2");
 
         //when
         when(customerService.getAllCustomers()).thenReturn(Arrays.asList(customerDTO1, customerDTO2));
@@ -115,7 +117,7 @@ class CustomerControllerTest extends AbstractRestController {
                 // .andExpect(jsonPath("$.url",equalTo("/api/v1/customers/1")))
                 //related to  @JsonProperty("customer_url") in domain declaration ,to see the result, here we use
                 // the JsonProperty's name
-                .andExpect(jsonPath("$.customer_url", equalTo("/api/v1/customers/1")))
+                .andExpect(jsonPath("$.customer_url", equalTo(CustomerController.BASE_URL+ "/1")))
                 .andExpect(jsonPath("$.firstName", equalTo("Joe")));
 
     }
@@ -132,7 +134,7 @@ class CustomerControllerTest extends AbstractRestController {
         CustomerDTO returnDTO = new CustomerDTO();
         returnDTO.setFirstName(customer.getFirstName());
         returnDTO.setLastName(customer.getLastName());
-        returnDTO.setUrl("api/v1/customer/1");
+        returnDTO.setUrl(CustomerController.BASE_URL+ "/1");
 
 
         //when
@@ -143,7 +145,7 @@ class CustomerControllerTest extends AbstractRestController {
                 .content(asJsonString(customer)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName",equalTo("Joe")))
-                .andExpect(jsonPath("$.customer_url",equalTo("api/v1/customer/1")));
+                .andExpect(jsonPath("$.customer_url",equalTo(CustomerController.BASE_URL+ "/1")));
 
     }
 
