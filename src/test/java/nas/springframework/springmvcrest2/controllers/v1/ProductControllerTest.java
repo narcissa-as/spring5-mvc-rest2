@@ -2,8 +2,10 @@ package nas.springframework.springmvcrest2.controllers.v1;
 
 import nas.springframework.springmvcrest2.api.v1.model.ProductDTO;
 import nas.springframework.springmvcrest2.api.v1.model.ProductDTOList;
+import nas.springframework.springmvcrest2.controllers.RestResponseEntityExceptionHandler;
 import nas.springframework.springmvcrest2.domain.Product;
 import nas.springframework.springmvcrest2.services.ProductService;
+import nas.springframework.springmvcrest2.services.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +44,10 @@ class ProductControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(productController).build();
+
+        mockMvc = MockMvcBuilders.standaloneSetup(productController)
+                .setControllerAdvice(new RestResponseEntityExceptionHandler())
+                .build();
     }
 
     @Test
@@ -79,11 +84,21 @@ class ProductControllerTest {
 
         //then
         //"/api/v1/products"
-        mockMvc.perform(MockMvcRequestBuilders.get( ProductController.BASE_URL+ "/1")
+        mockMvc.perform(MockMvcRequestBuilders.get(ProductController.BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.productDTO", hasSize(1)));
         // .andExpect(jsonPath("$.name",equalTo("fig")));
 
+    }
+
+    @Test
+    void testGetProductByIdNotFoundException() throws Exception {
+        //when
+        when(productService.getProductById(anyLong())).thenThrow(ResourceNotFoundException.class);
+        //then
+        mockMvc.perform(get(ProductController.BASE_URL + "/" + 10)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isNotFound());
     }
 }

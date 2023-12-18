@@ -40,6 +40,6 @@ public class ProductServiceImpl implements ProductService {
         return productRepository
                 .findById(Long.valueOf(id))
                 .map(productMapper::productToProductDTO)
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(ResourceNotFoundException::new);
     }
 }

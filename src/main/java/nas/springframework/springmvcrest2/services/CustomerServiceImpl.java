@@ -47,7 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(Long id) {
 
         return customerRepository.findById(id)
-                .map(customerMapper::customerToCustomerDTO).orElseThrow(RuntimeException::new);
+                .map(customerMapper::customerToCustomerDTO).orElseThrow(ResourceNotFoundException::new);
     }
 
     public CustomerDTO createNewCustomer(CustomerDTO customerDTO) {

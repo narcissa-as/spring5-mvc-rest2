@@ -2,7 +2,9 @@ package nas.springframework.springmvcrest2.controllers.v1;
 
 import com.jayway.jsonpath.JsonPath;
 import nas.springframework.springmvcrest2.api.v1.model.CustomerDTO;
+import nas.springframework.springmvcrest2.controllers.RestResponseEntityExceptionHandler;
 import nas.springframework.springmvcrest2.services.CustomerService;
+import nas.springframework.springmvcrest2.services.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +44,9 @@ class CustomerControllerTest extends AbstractRestController {
     @BeforeEach
     void setUp() {
         //Using controllerAdvice because of using ControllerAdvise in CustomerService, we have to bring ControllerAdvice here too
-        mockMvc = MockMvcBuilders.standaloneSetup(customerController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(customerController)
+                .setControllerAdvice(new RestResponseEntityExceptionHandler())
+                .build();
     }
 
     @Test
@@ -61,7 +65,7 @@ class CustomerControllerTest extends AbstractRestController {
         customerDTO2.setLastName("Axe");
         //better way to write hardcode way
         //customerDTO2.setUrl("api/v1/customer/2");
-        customerDTO2.setUrl(CustomerController.BASE_URL+ "/2");
+        customerDTO2.setUrl(CustomerController.BASE_URL + "/2");
 
         //when
         when(customerService.getAllCustomers()).thenReturn(Arrays.asList(customerDTO1, customerDTO2));
@@ -92,6 +96,17 @@ class CustomerControllerTest extends AbstractRestController {
     }
 
     @Test
+    void testNotFoundException() throws Exception {
+        //when
+        when(customerService.getCustomerById(anyLong())).thenThrow(ResourceNotFoundException.class);
+        //then
+        mockMvc.perform(get(CustomerController.BASE_URL + "/" + "10")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isNotFound());
+
+    }
+
+    @Test
     void creatNewCustomer() throws Exception {
 
         //given
@@ -117,16 +132,16 @@ class CustomerControllerTest extends AbstractRestController {
                 // .andExpect(jsonPath("$.url",equalTo("/api/v1/customers/1")))
                 //related to  @JsonProperty("customer_url") in domain declaration ,to see the result, here we use
                 // the JsonProperty's name
-                .andExpect(jsonPath("$.customer_url", equalTo(CustomerController.BASE_URL+ "/1")))
+                .andExpect(jsonPath("$.customer_url", equalTo(CustomerController.BASE_URL + "/1")))
                 .andExpect(jsonPath("$.firstName", equalTo("Joe")));
 
     }
 
     @Test
-    void updateCustomer() throws Exception{
+    void updateCustomer() throws Exception {
         //given
 
-        CustomerDTO customer =new CustomerDTO();
+        CustomerDTO customer = new CustomerDTO();
         customer.setId(1l);
         customer.setFirstName("Joe");
         customer.setLastName("Weston");
@@ -134,18 +149,18 @@ class CustomerControllerTest extends AbstractRestController {
         CustomerDTO returnDTO = new CustomerDTO();
         returnDTO.setFirstName(customer.getFirstName());
         returnDTO.setLastName(customer.getLastName());
-        returnDTO.setUrl(CustomerController.BASE_URL+ "/1");
+        returnDTO.setUrl(CustomerController.BASE_URL + "/1");
 
 
         //when
         when(customerService.saveCustomerByDTO(anyLong(), any(CustomerDTO.class))).thenReturn(returnDTO);
         //then
-        mockMvc.perform(put(CustomerController.BASE_URL+ "/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(customer)))
+        mockMvc.perform(put(CustomerController.BASE_URL + "/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(customer)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName",equalTo("Joe")))
-                .andExpect(jsonPath("$.customer_url",equalTo(CustomerController.BASE_URL+ "/1")));
+                .andExpect(jsonPath("$.firstName", equalTo("Joe")))
+                .andExpect(jsonPath("$.customer_url", equalTo(CustomerController.BASE_URL + "/1")));
 
     }
 
